@@ -1,72 +1,169 @@
-set(SRCS	Src/BPFunctions.cpp
-			Src/BPMemory.cpp
-			Src/BPStructs.cpp
-			Src/CPMemory.cpp
-			Src/CommandProcessor.cpp
-			Src/Debugger.cpp
-			Src/DriverDetails.cpp
-			Src/Fifo.cpp
-			Src/FPSCounter.cpp
-			Src/FramebufferManagerBase.cpp
-			Src/HiresTextures.cpp
-			Src/ImageWrite.cpp
-			Src/IndexGenerator.cpp
-			Src/MainBase.cpp
-			Src/OnScreenDisplay.cpp
-			Src/OpcodeDecoding.cpp
-			Src/OpenCL.cpp
-			Src/OpenCL/OCLTextureDecoder.cpp
-			Src/PerfQueryBase.cpp
-			Src/PixelEngine.cpp
-			Src/PixelShaderGen.cpp
-			Src/PixelShaderManager.cpp
-			Src/RenderBase.cpp
-			Src/Statistics.cpp
-			Src/TextureCacheBase.cpp
-			Src/TextureConversionShader.cpp
-			Src/VertexLoader.cpp
-			Src/VertexLoaderManager.cpp
-			Src/VertexLoader_Color.cpp
-			Src/VertexLoader_Normal.cpp
-			Src/VertexLoader_Position.cpp
-			Src/VertexLoader_TextCoord.cpp
-			Src/VertexManagerBase.cpp
-			Src/VertexShaderGen.cpp
-			Src/VertexShaderManager.cpp
-			Src/VideoBackendBase.cpp
-			Src/VideoConfig.cpp
-			Src/VideoState.cpp
-			Src/XFMemory.cpp
-			Src/XFStructs.cpp
-			Src/memcpy_amd.cpp)
+add_library(videocommon
+  AbstractFramebuffer.cpp
+  AbstractFramebuffer.h
+  AbstractShader.h
+  AbstractStagingTexture.cpp
+  AbstractStagingTexture.h
+  AbstractTexture.cpp
+  AbstractTexture.h
+  AsyncRequests.cpp
+  AsyncRequests.h
+  AsyncShaderCompiler.cpp
+  AsyncShaderCompiler.h
+  BoundingBox.cpp
+  BoundingBox.h
+  BPFunctions.cpp
+  BPFunctions.h
+  BPMemory.cpp
+  BPMemory.h
+  BPStructs.cpp
+  BPStructs.h
+  CommandProcessor.cpp
+  CommandProcessor.h
+  ConstantManager.h
+  CPMemory.cpp
+  CPMemory.h
+  DriverDetails.cpp
+  DriverDetails.h
+  Fifo.cpp
+  Fifo.h
+  FPSCounter.cpp
+  FPSCounter.h
+  FramebufferManager.cpp
+  FramebufferManager.h
+  FramebufferShaderGen.cpp
+  FramebufferShaderGen.h
+  GeometryShaderGen.cpp
+  GeometryShaderGen.h
+  GeometryShaderManager.cpp
+  GeometryShaderManager.h
+  HiresTextures.cpp
+  HiresTextures.h
+  HiresTextures_DDSLoader.cpp
+  ImageWrite.cpp
+  ImageWrite.h
+  IndexGenerator.cpp
+  IndexGenerator.h
+  LightingShaderGen.cpp
+  LightingShaderGen.h
+  LookUpTables.h
+  NativeVertexFormat.h
+  NetPlayChatUI.cpp
+  NetPlayChatUI.h
+  NetPlayGolfUI.cpp
+  NetPlayGolfUI.h
+  OnScreenDisplay.cpp
+  OnScreenDisplay.h
+  OpcodeDecoding.cpp
+  OpcodeDecoding.h
+  PerfQueryBase.cpp
+  PerfQueryBase.h
+  PixelEngine.cpp
+  PixelEngine.h
+  PixelShaderGen.cpp
+  PixelShaderGen.h
+  PixelShaderManager.cpp
+  PixelShaderManager.h
+  PostProcessing.cpp
+  PostProcessing.h
+  RenderBase.cpp
+  RenderBase.h
+  RenderState.cpp
+  RenderState.h
+  SamplerCommon.h
+  ShaderCache.cpp
+  ShaderCache.h
+  ShaderGenCommon.cpp
+  ShaderGenCommon.h
+  Statistics.cpp
+  Statistics.h
+  TextureCacheBase.cpp
+  TextureCacheBase.h
+  TextureConfig.cpp
+  TextureConfig.h
+  TextureConversionShader.cpp
+  TextureConversionShader.h
+  TextureConverterShaderGen.cpp
+  TextureConverterShaderGen.h
+  TextureDecoder.h
+  TextureDecoder_Common.cpp
+  TextureDecoder_Util.h
+  UberShaderCommon.cpp
+  UberShaderCommon.h
+  UberShaderPixel.cpp
+  UberShaderPixel.h
+  UberShaderVertex.cpp
+  UberShaderVertex.h
+  VertexLoader.cpp
+  VertexLoader.h
+  VertexLoaderBase.cpp
+  VertexLoaderBase.h
+  VertexLoaderManager.cpp
+  VertexLoaderManager.h
+  VertexLoaderUtils.h
+  VertexLoader_Color.cpp
+  VertexLoader_Color.h
+  VertexLoader_Normal.cpp
+  VertexLoader_Normal.h
+  VertexLoader_Position.cpp
+  VertexLoader_Position.h
+  VertexLoader_TextCoord.cpp
+  VertexLoader_TextCoord.h
+  VertexManagerBase.cpp
+  VertexManagerBase.h
+  VertexShaderGen.cpp
+  VertexShaderGen.h
+  VertexShaderManager.cpp
+  VertexShaderManager.h
+  VideoBackendBase.cpp
+  VideoBackendBase.h
+  VideoCommon.h
+  VideoConfig.cpp
+  VideoConfig.h
+  VideoState.cpp
+  VideoState.h
+  XFMemory.cpp
+  XFMemory.h
+  XFStructs.cpp
+  XFStructs.h
+)
 
-set(LIBS core)
+target_link_libraries(videocommon
+PUBLIC
+  core
+PRIVATE
+  png
+  xxhash
+  imgui
+)
 
-if(NOT _M_GENERIC)
-	set(SRCS ${SRCS}	Src/x64TextureDecoder.cpp
-						Src/x64DLCache.cpp)
+if(_M_X86)
+  target_sources(videocommon PRIVATE
+    TextureDecoder_x64.cpp
+    VertexLoaderX64.cpp
+    VertexLoaderX64.h
+  )
+elseif(_M_ARM_64)
+  target_sources(videocommon PRIVATE
+    VertexLoaderARM64.cpp
+    VertexLoaderARM64.h
+    TextureDecoder_Generic.cpp
+  )
 else()
-	set(SRCS ${SRCS}	Src/GenericTextureDecoder.cpp
-						Src/GenericDLCache.cpp)
-endif()
-if(NOT ${CL} STREQUAL CL-NOTFOUND)
-	list(APPEND LIBS ${CL})
+  target_sources(videocommon PRIVATE
+    TextureDecoder_Generic.cpp
+  )
 endif()
 
-if(wxWidgets_FOUND AND WIN32)
-	set(SRCS ${SRCS} Src/EmuWindow.cpp)
-endif()
-
-if(LIBAV_FOUND OR WIN32)
-	set(SRCS ${SRCS} Src/AVIDump.cpp)
-endif()
-
-add_library(videocommon STATIC ${SRCS})
-target_link_libraries(videocommon ${LIBS})
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	if(LIBAV_FOUND)
-		target_link_libraries(videocommon ${LIBS} ${LIBAV_LIBRARIES})
-		add_definitions(-D__STDC_CONSTANT_MACROS)
-	endif()
+if(FFmpeg_FOUND)
+  target_sources(videocommon PRIVATE
+    FrameDump.cpp
+    FrameDump.h
+  )
+  target_link_libraries(videocommon PRIVATE
+    FFmpeg::avcodec
+    FFmpeg::avformat
+    FFmpeg::avutil
+    FFmpeg::swscale
+  )
 endif()
